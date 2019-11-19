@@ -1,0 +1,389 @@
+
+<div class="container-fluid" style="margin-top: 40px">
+    <div class="row">
+        <div class="col-sm-24">
+            <a class="navbar-link pull-right" ng-click="settingsVisible = !settingsVisible"><span ng-show="settingsVisible">Hide </span>Settings <span class="glyphicon glyphicon-cog"></span></a>
+            <a class="navbar-link pull-left" href="https://hackmd.io/DZyJU5HSThmGX8ER7tprXg" target="_blank">About <span class="glyphicon glyphicon-info-sign"></span></a>
+            <a class="navbar-link pull-left" style="margin-left: 20px" href="https://forum.tezosagora.org/t/bakers-registry-discussion/1238" target="_blank">Discuss <span class="glyphicon glyphicon-globe"></span></a>
+        </div>
+        <div class="col-sm-24">
+            <div class="panel panel-default" ng-show="settingsVisible">
+                <div class="panel-body">
+                    <form class="form">
+                            <div class="row">
+                                <div class="col-sm-8">
+                                        <div class="form-group">
+                                            <label for="nodeProvider" style="margin-right:30px">Data Provider - v1.0 requires the tzStats staging API for big map parsing</label>
+                                            <input type="text" class="form-control" id="nodeProvider" name="nodeProvider" ng-model="nodeProvider" placeholder="full provider location including http://..." style="width: 360px">
+                                        </div>      
+                                    </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label for="contractAccount" style="margin-right:30px">Registry Contract</label>
+                                        <input type="text" class="form-control" id="contractAccount" name="contractAccount" ng-model="contractAccount" placeholder="contract that stores the baker data" style="width: 360px">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- <button class="btn btn-primary" ng-click="settingsAction()" style="margin-left:20px">Settings Action</button> -->
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                        
+<div class="container-fluid" ng-hide="editingBaker" style="margin-top: 40px">
+    <div class="row">
+        <div class="col-sm-24">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title" style="text-align:center">
+                        <strong>Baker Registry Onchain Data</strong>
+                        <a class="navbar-link pull-right" ng-click="addBaker()"><small>Add a baker</small> <span class="glyphicon glyphicon-plus"></span></a>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <form class="form-inline" style="margin: 20px 0 40px 0">
+                        <div class="form-group">
+                            <label for="bakerAccount" style="margin-right:30px">Find Baker</label>
+                            <input type="text" class="form-control" id="bakerAccount" name="bakerAccount" ng-model="bakerAccount" ng-change="showSearchResults = false" placeholder="baker public key hash" style="width: 360px">
+                            <button class="btn btn-primary" ng-click="findBaker()" style="margin-left:20px">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid" ng-show="showSearchResults">
+        <div class="row">
+            <div class="col-sm-24">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" style="text-align:center">
+                            <strong>{{searchResultsTitle}}</strong>
+                        </h3></div>
+                    <div class="panel-body">
+                        <span ng-show="bakers.length == 0" style="margin-left: 20px; color: red">No match found</span>
+                        <form ng-show="bakers.length > 0" class="form-inline" style="margin: 20px 0 40px 0">
+                                <div class="form-group">
+                                    <label for="bakerAccount" style="margin-right:30px">Baker Name</label>
+                                    <input type="text" class="form-control" id="bakerName" name="bakerName" value="{{bakers[0].bakerName}}" style="width: 360px" disabled>
+                                    <button class="btn btn-primary" ng-click="editBaker(bakers[0].bakerAccount)" style="margin-left:20px">Edit Baker Data</button>
+                                </div>
+                            </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+<!-- <div class="container-fluid" ng-hide="editingBaker || !settingsVisible">
+    <div class="row">
+            <div class="col-sm-24">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title" style="text-align:center">
+                            <strong>Baker Results (click row to edit)</strong>
+                            <a class="navbar-link pull-right" ng-click="getAllBakers()"><small>Get All Bakers</small> <span class="glyphicon glyphicon-refresh"></span></a>
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div ng-show="bakers.length == 0"><span class ="col-sm-24">No Results</span></div>
+                        <table ng-show="bakers.length > 0" class="table table-condensed table-hover">
+                            <tr>
+                                <th class="col-sm-4">Baker Name</th>
+                                <th class="col-sm-1" style="text-align:center">Open</th>
+                                <th class="col-sm-1" style="text-align:center">Split</th>
+                                <th class="col-sm-1" style="text-align:center">Payout Model</th>
+                                <th class="col-sm-1" style="text-align:center">Payout Interval</th>
+                                <th class="col-sm-1" style="text-align:center">Country</th>
+                                <th class="col-sm-4">Keys</th>
+                                <th class="col-sm-1" style="text-align:center">Payout Delay</th>
+                                <th class="col-sm-1" style="text-align:center">Min Delegation</th>
+                                <th class="col-sm-1" style="text-align:center">Min Payout</th>
+                                <th class="col-sm-4">Offchain Data</th>
+                            </tr>
+                            <tr ng-repeat="baker in bakers" ng-click="editBaker(baker.bakerAccount)">
+                                <td>{{baker.bakerName}}</td>
+                                <td style="text-align:center">{{baker.openForDelegation}}</td>
+                                <td style="text-align:center">{{baker.paymentModel.split}}</td>
+                                <td style="text-align:center">{{baker.payoutModel}}</td>
+                                <td style="text-align:center">{{baker.paymentModel.payoutFrequency}}</td>
+                                <td style="text-align:center">{{baker.country}}</td>
+                                <td>
+                                    <div>{{baker.bakerAccount}}</div>
+                                    <div>{{baker.reporterAccount}}</div>
+                                    <div>{{baker.bakerRegistryLastUpdated}}</div>
+                                </td>
+                                <td style="text-align:center">{{baker.paymentModel.payoutDelay}}</td>
+                                <td style="text-align:center">{{baker.paymentModel.minDelegation}}</td>
+                                <td style="text-align:center">{{baker.paymentModel.minPayout}}</td>
+                                <td>{{baker.bakerOffchainRegistryUrl}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+
+
+<div class="container-fluid" ng-show="editingBaker">
+        <div class="row">
+            <div class="col-sm-24">
+                <div class="panel panel-default">
+                    <div class="panel-heading" style="background-color: #ddd">
+                        <h3 class="panel-title" style="text-align:left">
+                            <strong>{{title}}</strong>
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <form class="form" name="mainForm" novalidate autocomplete="off">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="well">
+                                        <fieldset>
+                                            <div class="form-group">
+                                                <label for="bakerAccount" class="control-label" tooltip-placement="right" tooltip="The publc key hash of the delegate">Baker Account</label>
+                                                <input type="text" class="form-control" id="bakerAccount" name="bakerAccount" ng-model="bakerToEdit.bakerAccount" ng-disabled="!newBaker">
+                                            </div>
+                                            <div class="checkbox">
+                                                <label for="delegationOpen" class="control-label" tooltip-placement="right" tooltip="The baker is currently accepting new delegation">
+                                                    <input type="checkbox" id="openForDelegation" name="openForDelegation" ng-model="bakerToEdit.openForDelegation"><strong>Open for Delegation</strong>
+                                                </label>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="bakerName" class="control-label">Baker Name</label>
+                                                <input type="text" class="form-control" id="bakerName" name="bakerName" ng-model="bakerToEdit.bakerName">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="split" class="control-label" tooltip-placement="right" tooltip="The fraction of the reward calculation which is paid to the delegation. For example if the baker pays out 85% of the calculated rewards, then this value woud be entered as 0.85">Delegation Payment Split</label>
+                                                <input type="number" class="form-control" id="split" name="split" ng-model="bakerToEdit.paymentModel.split">
+                                            </div>          
+                                            <div class="form-group">
+                                                <label for="bakerOffchainRegistryUrl" class="control-label" tooltip-placement="right" tooltip="A link to the json document maintained by the baker which contains additional information about the baker">Offchain Baker Data Url</label>
+                                                <input type="text" class="form-control" id="bakerOffchainRegistryUrl" name="bakerOffchainRegistryUrl" ng-model="bakerToEdit.bakerOffchainRegistryUrl">
+                                            </div> 
+                                            <div class="form-group">
+                                                <label for="reporterAccount" class="control-label" tooltip-placement="right" tooltip="An optional secondary account specified by the baker which can sign calls to the registry contract. This account will be allowed to submit changes to the bakers data in the registry contract without needing to sign with the baker account key. Note if reporter is set as a contract, then the reporter will need to contain code to make calls to the registry as the command generated by this form can only be sent from an implicit account">Reporter Account</label>
+                                                <input type="text" class="form-control" id="reporterAccount" name="reporterAccount" ng-model="bakerToEdit.reporterAccount">
+                                            </div>  
+                                        </fieldset>
+                                    </div>
+
+                                            
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="well">
+                                        <fieldset>
+                                            <div class="form-group">
+                                                <label for="payoutDelay" class="control-label" tooltip-placement="right" tooltip="The number of cycles after a block is baked that the payout is made to the delegation. The default value is 6 (when reward is unfrozen)">Payout Delay</label>
+                                                <input type="number" class="form-control" id="payoutDelay" name="payoutDelay" ng-model="bakerToEdit.paymentModel.payoutDelay">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="payoutFrequency" class="control-label" tooltip-placement="right" tooltip="The number of cycles in between payments. The default value of 1 means that the baker pays out every cycle">Payout Frequency</label>
+                                                <input type="number" class="form-control" id="payoutFrequency" name="payoutFrequency" ng-model="bakerToEdit.paymentModel.payoutFrequency">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="minPayout" class="control-label" tooltip-placement="right" tooltip="The minium tez amount a baker inlcudes in a payout. The default value of 0 means there is no minimum">Minimum Payout (tez)</label>
+                                                <input type="number" class="form-control" id="minPayout" name="minPayout" ng-model="bakerToEdit.paymentModel.minPayout">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="minDelegation" class="control-label" tooltip-placement="right" tooltip="The lowest delegated tez amount the baker will accept in order to be included in the payouts">Minimum Delegation Amount (tez)</label>
+                                                <input type="number" class="form-control" id="minDelegation" name="minDelegation" ng-model="bakerToEdit.paymentModel.minDelegation">
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="subtractPayoutsLessThanMin" class="control-label" tooltip-placement="top" tooltip="All the rewards gained for delegations less than the minimum and for payouts less than the minimum will be withheld by the baker. Meaning these are not shared with the rest of the delegation">
+                                                    <input type="checkbox" id="subtractPayoutsLessThanMin" name="subtractPayoutsLessThanMin" ng-model="bakerToEdit.paymentModel.subtractPayoutsLessThanMin"><strong>Baker Retains Payouts Less than Min</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="bakerChargesPayoutTransactionFee" class="control-label" tooltip-placement="top" tooltip="When baker makes a payout, the baker deducts the transaction fees from the payout">
+                                                    <input type="checkbox" id="bakerChargesPayoutTransactionFee" name="bakerChargesPayoutTransactionFee" ng-model="bakerToEdit.paymentModel.bakerChargesTransactionFee"><strong>Baker Charges Payout Tx Fee</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="subtractRewardsFromUninvitedDelegation" class="control-label" tooltip-placement="top" tooltip="All the rewards from withholding payouts to non-qualifying delegation (those which delegated after baker no longer accepted delegation or became overdelegated) are kept by the baker. Meaning these are not shared with the rest of the delegation">
+                                                    <input type="checkbox" id="subtractRewardsFromUninvitedDelegation" name="subtractRewardsFromUninvitedDelegation" ng-model="bakerToEdit.paymentModel.subtractRewardsFromUninvitedDelegation"><strong>Baker Retains Rewards From Uninvited Delegation</strong>
+                                                </label>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title" style="text-align:center">
+                                            <strong tooltip-placement="top" tooltip="A list of accounts the baker uses to pay the delegation">Accounts Baker Pays From</strong>
+                                            <a class="navbar-link pull-right" ng-click="addPayoutAccount()">
+                                                <small>Add Account</small> <span class="glyphicon glyphicon-plus"></span>
+                                            </a>
+                                        </h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table ng-show="bakerToEdit.paymentModel.bakerPaysFromAccounts.length > 0" class="table table-condensed">
+                                            <tr>
+                                                <th class="col-sm-5">Baker Pays From Account Addresses</th>
+                                                <th class="col-sm-1"></th>
+                                                <th class="col-sm-4"></th>
+                                            </tr>
+                                            <tr ng-repeat="payoutAccount in bakerToEdit.paymentModel.bakerPaysFromAccounts">
+                                                <td>
+                                                    <input type="text" class="form-control" id="payoutAccount" name="payoutAccount" ng-model="payoutAccount.address">
+                                                </td>
+                                                <td><button class="btn btn-danger btn-sm" style="margin-top: 2px; margin-left: 6px" ng-click="deletePayoutAccount(payoutAccount)">Remove</button></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="well">
+                                        <fieldset>
+                                            <h4>Baking Rewards & Payment Details</h4>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="payForOwnBlocks" class="control-label" tooltip-placement="top" tooltip="Baker pays out on rewards from own blocks (priority 0 blocks)">
+                                                    <input type="checkbox" id="payForOwnBlocks" name="payForOwnBlocks" ng-model="bakerToEdit.paymentModel.paymentConfig.payForOwnBlocks"><strong>Pay Own Blocks</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="compensateMissedBlocks" class="control-label" tooltip-placement="top" tooltip="When baker misses a block, baker still pays out as if it had not been missed">
+                                                    <input type="checkbox" id="compensateMissedBlocks" name="compensateMissedBlocks" ng-model="bakerToEdit.paymentModel.paymentConfig.compensateMissedBlocks"><strong>Compensate Missed Blocks</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="payForStolenBlocks" class="control-label" tooltip-placement="top" tooltip="Baker pays out on rewards from stolen blocks (priority > 0 blocks)">
+                                                    <input type="checkbox" id="payForStolenBlocks" name="payForStolenBlocks" ng-model="bakerToEdit.paymentModel.paymentConfig.payForStolenBlocks"><strong>Pay Stolen Blocks</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="payForEndorsements" class="control-label" tooltip-placement="top" tooltip="Baker pays out on rewards from endorsements">
+                                                    <input type="checkbox" id="payForEndorsements" name="payForEndorsements" ng-model="bakerToEdit.paymentModel.paymentConfig.payForEndorsements"><strong>Pay Endorsement Rewards</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="compensateMissedEndorsements" class="control-label" tooltip-placement="top" tooltip="When baker misses an endorsement, baker still pays out as if it had not been missed">
+                                                    <input type="checkbox" id="compensateMissedEndorsements" name="compensateMissedEndorsements" ng-model="bakerToEdit.paymentModel.paymentConfig.compensateMissedEndorsements"><strong>Compensate Missed Endorsements</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="compensateLowPriorityEndorsementLoss" class="control-label" tooltip-placement="top" tooltip="When baker endorses a block with a priority > 0, baker still pays out as if the block had been priority 0">
+                                                    <input type="checkbox" id="compensateLowPriorityEndorsementLoss" name="compensateLowPriorityEndorsementLoss" ng-model="bakerToEdit.paymentModel.paymentConfig.compensateLowPriorityEndorsementLoss"><strong>Compensate Low Priority Endrosement Loss</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 42px">
+                                                <label for="payGainedFees" class="control-label" tooltip-placement="top" tooltip="Bakers pays out on fees collected from operations included in the blocks">
+                                                    <input type="checkbox" id="payGainedFees" name="payGainedFees" ng-model="bakerToEdit.paymentModel.paymentConfig.payGainedFees"><strong>Pay Gains from Fees</strong>
+                                                </label>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                    <div class="well">
+                                        <fieldset>
+                                            <h4>Accusation Rewards and Losses</h4>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="payForAccusationGains" class="control-label" tooltip-placement="top" tooltip="Baker pays out on rewards from baking/endorsing accusations">
+                                                    <input type="checkbox" id="payForAccusationGains" name="payForAccusationGains" ng-model="bakerToEdit.paymentModel.paymentConfig.payForAccusationGains"><strong>Pay Gains from Accusations</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="subtractLostDepositsWhenAccused" class="control-label" tooltip-placement="top" tooltip="When baker loses deposit from being accused, the baker subtracts this loss from the payout and thus does not compensate for this loss">
+                                                    <input type="checkbox" id="subtractLostDepositsWhenAccused" name="subtractLostDepositsWhenAccused" ng-model="bakerToEdit.paymentModel.paymentConfig.subtractLostDepositsWhenAccused"><strong>Subtract Lost Deposits When Accused</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="subtractLostRewardsWhenAccused" class="control-label" tooltip-placement="top" tooltip="When baker loses rewards from being accused, the baker subtracts this loss from the payout and thus does not compensate for this loss">
+                                                    <input type="checkbox" id="subtractLostRewardsWhenAccused" name="subtractLostRewardsWhenAccused" ng-model="bakerToEdit.paymentModel.paymentConfig.subtractLostRewardsWhenAccused"><strong>Subtract Lost Rewards When Accused</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="subtractLostFeesWhenAccused" class="control-label" tooltip-placement="top" tooltip="When baker loses fees from being accused, the baker subtracts this loss from the payout and thus does not compensate for this loss">
+                                                    <input type="checkbox" id="subtractLostFeesWhenAccused" name="subtractLostFeesWhenAccused" ng-model="bakerToEdit.paymentModel.paymentConfig.subtractLostFeesWhenAccused"><strong>Subtract Lost Fees When Accused</strong>
+                                                </label>
+                                            </div>
+                                            <h4>Revelation Rewards and Losses</h4>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="payForRevelation" class="control-label" tooltip-placement="top" tooltip="Baker pays out on rewards from including seed nonce revelation">
+                                                    <input type="checkbox" id="payForRevelation" name="payForRevelation" ng-model="bakerToEdit.paymentModel.paymentConfig.payForRevelation"><strong>Pay Revelation Rewards</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="subtractLostRewardsWhenMissRevelation" class="control-label" tooltip-placement="top" tooltip="When baker loses rewards from failing to reveal nonce, the baker subtracts this loss from the payout and thus does not compensate for this loss">
+                                                    <input type="checkbox" id="subtractLostRewardsWhenMissRevelation" name="subtractLostRewardsWhenMissRevelation" ng-model="bakerToEdit.paymentModel.paymentConfig.subtractLostRewardsWhenMissRevelation"><strong>Subtract Lost Rewards When Miss Revelation</strong>
+                                                </label>
+                                            </div>
+                                            <div class="checkbox" style="padding-bottom: 8px">
+                                                <label for="subtractLostFeesWhenMissRevelation" class="control-label" tooltip-placement="top" tooltip="When baker loses fees from failing to reveal nonce, the baker subtracts this loss from the payout and thus does not compensate for this loss">
+                                                    <input type="checkbox" id="subtractLostFeesWhenMissRevelation" name="subtractLostFeesWhenMissRevelation" ng-model="bakerToEdit.paymentModel.paymentConfig.subtractLostFeesWhenMissRevelation"><strong>Subtract Lost Fees When Miss Revelation</strong>
+                                                </label>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body">
+                                            <div class="row">
+                                                <div class="col-sm-24">
+                                                    <div class="form-group">
+                                                        <button type="submit" class="btn btn-success" style="width:260px" ng-click="generateBakerUpdateData()">Generate Contract Command</button>
+                                                        <button class="btn btn-danger" ng-click="cancelEditBaker()" style="width:120px;margin-left:20px">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>  
+                                            <div class="row">
+                                                <div class="col-sm-24">
+                                                    <div class="form-group">
+                                                        <label for="commandText" class="control-label">Client Command<span class="glyphicon glyphicon-copy pull-right" style="margin-left: 20px" ngclipboard data-clipboard-target="#commandText"></span></label>
+                                                        <div><small>Use command to call contract from Tezos cli client</small></span></div>
+                                                        <textarea class="form-control" id="commandText" name="commandText"
+                                                                    ng-model="commandText"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12">
+                                        <div class="panel panel-default" style="padding-bottom: 88px">
+                                            <div class="panel-body"> 
+                                                <div class="row"> 
+                                                    <div class="col-sm-24">
+                                                        <div class="panel-body" style="padding-top: 0">
+                                                            <div><strong>Current registry contract dues (set by TCF)</strong></div>
+                                                            <div><span>Sign up a new baker: {{signUpBakerDues / 1000000}} tez</span></div>
+                                                            <div><span>Update an existing baker: {{updateDataDues / 1000000}} tez</span></div>
+                                                        </div>
+                                                        <!-- <div class="form-group">
+                                                            <label for="parameterText" class="control-label">Contract Call Parameter<span class="glyphicon glyphicon-copy pull-right" style="margin-left: 20px" ngclipboard data-clipboard-target="#parameterText"></span></label>
+                                                            <div><small>This parameter text can be used with cli or other wallet</small></div>
+                                                            <textarea class="form-control" id="parameterText" name="parameterText"
+                                                                        ng-model="parameterText"></textarea>
+                                                        </div> -->
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+                            
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

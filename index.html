@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org" id="ng-app" ng-app="bakersapp">
+<head>
+    <title>Tezos Baker Registry</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Latest compiled and minified CSS -->
+    <!-- <link rel="stylesheet" type="text/css" href="css/site.css" /> -->
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <!-- <script src="scripts/eztz.min.js"></script> -->
+    <script src="./tcfBakerRegistry.js"></script>
+    <style>
+            .overlay {
+                position: fixed;
+                top:0;
+                left:0;
+                right:0;
+                bottom:0;
+                z-index: 5000;
+            }
+    
+            .overlay-backdrop {
+                position:absolute;
+                top:0;
+                left:0;
+                right:0;
+                bottom:0;
+                background-color:black;
+                opacity:0.04;
+            }
+        </style>
+</head>
+<body>
+    <div ng-show="loading" class="overlay">
+        <div class="overlay-backdrop"></div>
+        <div style="position:fixed; top:50%; left:50%"><img src="./img/spin.gif" /></div>
+    </div>
+    <div ng-hide="loadingError" ui-view></div>
+    <div ng-show="loadingError" class="overlay">
+        <div style="position:fixed; top:10%;background-color: rgb(247, 162, 162);">
+            <div style="margin: 10px 20px 10px 20px">{{loadingErrorMessage}}</div>
+        </div>
+    </div>
+    <!--Load external libraries before loading angular-->
+    <!-- <script src="scripts/angular-file-upload-shim.min.js"></script> -->
+    <!--Load angular-->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular-animate.min.js"></script>
+    
+    <!--Load external libraries after angular-->
+    <script src="scripts/angular-ui-router.min.js"></script> <!--local because cloudflare still sucks-->
+    <script src="scripts/ui-bootstrap-tpls-0.12.1.min.js"></script>
+    <!-- <script src="https://cdn.rawgit.com/zenorocha/clipboard.js/master/dist/clipboard.min.js"></script> -->
+    <script src="scripts/clipboard.min.js"></script>
+    <script src="scripts/ngclipboard.min.js"></script>
+
+    <!-- build:js -->
+    <!-- Load app main script -->
+    <script src="app/app.js"></script>
+
+    <!-- Load controllers -->
+    <script src="app/controllers/HomeController.js"></script>
+
+    <!-- Load filters -->
+    <!--<script src="app/filters/testfilter.js"></script>-->
+
+    <!-- Load services -->
+    <!--<script src="app/services/mappingService.js"></script>-->
+</body>
+</html>

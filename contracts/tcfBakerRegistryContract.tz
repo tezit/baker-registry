@@ -1,0 +1,74 @@
+parameter (or
+             # delegate entry point
+             (pair %set_data
+                (key_hash %delegate)
+                (pair
+                   (option %data (pair (pair (pair (bytes %bakerName) (bool %openForDelegation)) (bytes %bakerOffchainRegistryUrl)) (pair (pair (nat %split) (list %bakerPaysFromAccounts address)) (pair (pair (pair (nat %minDelegation) (bool %subtractPayoutsLessThanMin)) (pair (int %payoutDelay) (pair (nat %payoutFrequency) (int %minPayout)))) (pair (pair (bool %bakerChargesTransactionFee) (nat %paymentConfigMask)) (pair (nat %overDelegationThreshold) (bool %subtractRewardsFromUninvitedDelegation)))))))
+                   (option %reporterAccount address)))
+             # owner entry points
+             (or
+                (pair %set_fees (mutez %signup_fee) (mutez %update_fee))
+                (contract %withdraw unit)));
+storage (pair
+           (big_map
+              key_hash
+              (pair
+                 (pair
+                    (option %data (pair (pair (pair (bytes %bakerName) (bool %openForDelegation)) (bytes %bakerOffchainRegistryUrl)) (pair (pair (nat %split) (list %bakerPaysFromAccounts address)) (pair (pair (pair (nat %minDelegation) (bool %subtractPayoutsLessThanMin)) (pair (int %payoutDelay) (pair (nat %payoutFrequency) (int %minPayout)))) (pair (pair (bool %bakerChargesTransactionFee) (nat %paymentConfigMask)) (pair (nat %overDelegationThreshold) (bool %subtractRewardsFromUninvitedDelegation)))))))
+                    (option %reporterAccount address))
+                 (timestamp %last_update)))
+           (pair
+              (address %owner)
+              (pair (mutez %signup_fee) (mutez %update_fee))));
+code
+  {
+    UNPAIR;
+    IF_LEFT
+      # delegate entry points
+      { # check bytes size for both name and url
+        DUP; CDR; CAR; # lookup the left option data
+        IF_SOME
+          {
+            CAR;DUP;CAR;CAR;SIZE; # size of name bytes
+            PUSH nat 61;ASSERT_CMPGT; # require that 61 is greater than size of name bytes
+            CDR;SIZE; # size of url bytes
+            PUSH nat 81;ASSERT_CMPGT; # require that 81 is greater than size of url bytes
+          }
+          {};
+        # look given delegate up in storage
+        UNPAIR;
+        DUUUP; CAR; DUUP; GET @from_storage;
+        IF_NONE
+          { # not present (signup)
+            # sender must be delegate
+            DUP; IMPLICIT_ACCOUNT; ADDRESS; SENDER; ASSERT_CMPEQ;
+            # require 'signup' fee (exactly)
+            DUUUP; CDDAR %signup_fee; AMOUNT; ASSERT_CMPEQ }
+          { # present (update)
+            # sender must be reporter...
+            CADR %reporterAccount;
+            IF_NONE { PUSH bool False } { SENDER; COMPARE; EQ; };
+            # ...or the delegate themselves
+            DIP { DUP; IMPLICIT_ACCOUNT; ADDRESS; SENDER; COMPARE; EQ; };
+            OR; ASSERT;
+            # require 'update' fee (exactly)
+            DUUUP; CDDDR %update_fee; AMOUNT; ASSERT_CMPEQ;
+          };
+        # update entry as given, add new updated time
+        DIP { NOW; SWAP; PAIR; SOME; DIP { UNPAIR } };
+        UPDATE;
+        PAIR;
+        NIL operation; PAIR }
+      # owner entry points.
+      { # sender must be owner
+        DUUP; CDAR %owner; SENDER; ASSERT_CMPEQ;
+        # for good measure, refuse tez
+        AMOUNT; PUSH mutez 0; ASSERT_CMPEQ;
+        IF_LEFT
+          # set_fees
+          { SWAP; SET_CDDR;
+            NIL operation; PAIR; }
+          # withdraw
+          { BALANCE; UNIT; TRANSFER_TOKENS;
+            NIL operation; SWAP; CONS; PAIR } }
+  }
