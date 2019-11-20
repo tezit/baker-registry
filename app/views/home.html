@@ -333,7 +333,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <div class="panel panel-default">
+                                    <div class="panel panel-default" style="height: 195px">
                                         <div class="panel-body">
                                             <div class="row">
                                                 <div class="col-sm-24">
@@ -347,7 +347,7 @@
                                                 <div class="col-sm-24">
                                                     <div class="form-group">
                                                         <label for="commandText" class="control-label">Client Command<span class="glyphicon glyphicon-copy pull-right" style="margin-left: 20px" ngclipboard data-clipboard-target="#commandText"></span></label>
-                                                        <div><small>Use command to call contract from Tezos cli client</small></span></div>
+                                                        <div><small>Use command to call contract from Tezos cli client. It's generated with --dry-run and --burn-cap 1</small></span></div>
                                                         <textarea class="form-control" id="commandText" name="commandText"
                                                                     ng-model="commandText"></textarea>
                                                     </div>
@@ -357,7 +357,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-12">
-                                        <div class="panel panel-default" style="padding-bottom: 88px">
+                                        <div class="panel panel-default" style="height: 195px">
                                             <div class="panel-body"> 
                                                 <div class="row"> 
                                                     <div class="col-sm-24">
@@ -365,6 +365,9 @@
                                                             <div><strong>Current registry contract dues (set by TCF)</strong></div>
                                                             <div><span>Sign up a new baker: {{signUpBakerDues / 1000000}} tez</span></div>
                                                             <div><span>Update an existing baker: {{updateDataDues / 1000000}} tez</span></div>
+                                                            <div style="margin-top: 10px">
+                                                                <span>These are in addition to the usual gas fees and storage burn every contract call in Tezos pays. For storage, callers pay a burn for any extra bytes their call adds to the storage used by the contract.</span>
+                                                            </div>
                                                         </div>
                                                         <!-- <div class="form-group">
                                                             <label for="parameterText" class="control-label">Contract Call Parameter<span class="glyphicon glyphicon-copy pull-right" style="margin-left: 20px" ngclipboard data-clipboard-target="#parameterText"></span></label>
