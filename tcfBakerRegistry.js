@@ -34,6 +34,12 @@ function hexToArray (hex) {
     return new Uint8Array(hex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
 }
 
+
+/*
+Current working public default for indexerProvider: https://api.staging.tzstats.com
+Current registry contractAddress: KT1ChNsEFxwyCbJyWGSL3KdjeXE28AY1Kaog
+Current registry contract bigMapId: 17
+*/
 function getRegistryBaker(bakerAccount, indexerProvider, bigMapId) {
     return new Promise(function (resolve, reject) {
         fetch(indexerProvider + '/explorer/bigmap/' + bigMapId + '/' + bakerAccount + '?prim=false').then(function(res){
@@ -77,6 +83,11 @@ function getRegistryContractConfig(indexerProvider, contractAddress) {
     });
 }
 
+/*
+Current working public default for indexerProvider: https://api.staging.tzstats.com
+Current registry contractAddress: KT1ChNsEFxwyCbJyWGSL3KdjeXE28AY1Kaog
+Current registry contract bigMapId: 17
+*/
 function getAllRegistryBakers(indexerProvider, bigMapId) {
     return new Promise(function(resolve, reject) {
     fetch(indexerProvider + '/explorer/bigmap/' + bigMapId + '/values?limit=100').then(function(res){
