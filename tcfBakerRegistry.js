@@ -73,7 +73,7 @@ function getRegistryContractConfig(indexerProvider, contractAddress) {
                 throw new Error("HTTP error, status = " + res.status);
             }
             res.json().then(function(data) {
-                resolve (data.value);
+                resolve (parseContractConfigData(data));
             }).catch(function(e){
                 reject(e);
             });
@@ -135,7 +135,7 @@ function parseBakerData(bakerData) {
     var baker = {
         "bakerName": bakerData.value.data.bakerName,
         "openForDelegation": bakerData.value.data.openForDelegation,
-        "bakerAccount": bakerData.key.key,
+        "bakerAccount": bakerData.key,
         "reporterAccount": bakerData.value.reporterAccount,
         "bakerOffchainRegistryUrl": bakerData.value.data.bakerOffchainRegistryUrl,
         "bakerRegistryLastUpdated": bakerData.value.last_update
@@ -170,4 +170,13 @@ function parseBakerData(bakerData) {
 
     baker.paymentModel.paymentConfig = genPaymentConfigStruct(baker.paymentModel.paymentConfigMask); // baking bad compatible struct;
     return baker;
+}
+
+function parseContractConfigData (data) {
+    return {
+        'signup_fee': data.value.signup_fee,
+        'update_fee': data.value.update_fee,
+        'bigMapId': data.value['0@big_map'], //17 bigmapID on main, 538 on babylonnet -- this syntax needed when property is not annotated in contract
+        'owner': data.value.owner
+    };
 }

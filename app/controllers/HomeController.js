@@ -297,7 +297,7 @@
                 $scope.$apply(function () {
                     $scope.signUpBakerDues = r.signup_fee;
                     $scope.updateDataDues = r.update_fee;
-                    $scope.contractBigMap = r.__entry_00_big_map__; //17 bigmapID Tezos uses to store big map, note 18 Nov 2019 version of tzstats changed from "bigmap" to this more elaborate fieldname where non-annotated fields 00 is the index of its place in tree
+                    $scope.contractBigMap = r.bigMapId; //17 bigmapID on main, 538 on babylonnet -- this syntax needed when property is not annotated in contract
                     $scope.contractOwner = r.owner;
                 });
             }).catch(function(e){
